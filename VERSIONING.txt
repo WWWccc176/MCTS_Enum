@@ -1,0 +1,24 @@
+Versioned runtime layout
+========================
+Flash/<version>/MCTSBack + Runtime
+Net/<version>/MCTSBack + NN
+Dataset, Dataset/Original/Generator, HeavyBack and Tests stay shared at project root.
+
+Build:
+  ./build_all.zsh Flash v0.1
+  ./build_all.zsh Net v0.1
+
+Run:
+  ./run.zsh Flash v0.1 --node-budget 10000000 --refresh-cycles 2 <basis>
+  ./run.zsh Net   v0.1 --node-budget 500000   --refresh-cycles 0 <basis>
+
+Semantics:
+  --node-budget is PER PHASE.
+  --refresh-cycles=N means N LLL refreshes and therefore N+1 search phases.
+  A requested refresh always starts the next phase. changed=0 means LLL returned
+  the same basis; it does not silently delete the requested phase.
+
+Results:
+  Result/<Flash|Net>/<version>/<basis_stem>/<timestamp>_<parameter_id>/
+  Each run keeps the six .txt files. summary.txt is appended with the complete
+  runtime/training/network/resource parameter set and the input basis SHA-256.

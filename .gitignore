@@ -1,0 +1,105 @@
+# ============================================================
+# MCTS project
+# Keep: source code, Dataset, Result, scripts, documentation
+# Ignore: build products, caches, environments, editor junk
+# ============================================================
+
+# ---------- C / C++ / CUDA build artifacts ----------
+build/
+build-*/
+**/build/
+**/build-*/
+
+CMakeFiles/
+**/CMakeFiles/
+
+CMakeCache.txt
+**/CMakeCache.txt
+
+cmake_install.cmake
+**/cmake_install.cmake
+
+Makefile
+**/Makefile
+
+compile_commands.json
+**/compile_commands.json
+
+CTestTestfile.cmake
+**/CTestTestfile.cmake
+
+*.o
+*.obj
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.lib
+*.exp
+*.pdb
+*.ilk
+
+*.fatbin
+*.cubin
+*.ptx
+
+# ---------- Python ----------
+__pycache__/
+**/__pycache__/
+
+*.pyc
+*.pyo
+*.pyd
+
+.pytest_cache/
+**/.pytest_cache/
+
+.mypy_cache/
+**/.mypy_cache/
+
+.ruff_cache/
+**/.ruff_cache/
+
+.coverage
+coverage.xml
+htmlcov/
+
+# ---------- Python environments ----------
+mcts_env/
+.venv/
+venv/
+env/
+
+# ---------- Packaging ----------
+dist/
+**/dist/
+
+*.egg-info/
+**/*.egg-info/
+
+# ---------- Temporary/runtime files ----------
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+
+.cache/
+**/.cache/
+
+# ---------- Logs ----------
+*.log
+
+# ---------- Editors ----------
+.idea/
+.vscode/
+
+# ---------- OS ----------
+.DS_Store
+Thumbs.db
+
+# ---------- Core dumps ----------
+core
+core.*
+*.core
