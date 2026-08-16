@@ -32,7 +32,7 @@ ReduceResult reduce_extreme(int64_t matrix_id, Matrix& B,
         if (actual_beta < kMinimumActionBeta ||
             actual_beta > kMaximumActionBeta) {
             out.stop_reason = StopReason::invalid_input;
-            out.error = "clipped local action beta is outside [21, 95]";
+            out.error = "clipped local action beta is outside [21, 175]";
             out.time_ms = std::chrono::duration<double, std::milli>(
                 std::chrono::steady_clock::now() - started).count();
             return out;

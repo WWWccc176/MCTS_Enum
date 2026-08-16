@@ -249,8 +249,8 @@ void Lattice_QP::tail_shuffle(long l){
     }
     compute_gso_QP(n-l);
     if (l <= 50) {
-        LLL_QP(0.99, n-l, n);
-        LLL_DEEP_QP(0.99, n-l, n);
+        LLL_QP(0.999, n-l, n);
+        LLL_DEEP_QP(0.999, n-l, n);
     } else {
         LLL_QP(0.7, n-l, n-l+30);
         LLL_QP(0.7, n-l+15, n-l+50);
@@ -260,12 +260,12 @@ void Lattice_QP::tail_shuffle(long l){
         LLL_QP(0.9, n-l+15, n-l+50);
         LLL_QP(0.9, n-50, n-20);
         LLL_QP(0.9, n-30, n);
-        LLL_QP(0.99, n-l, n-l+50);
-        LLL_QP(0.99, n-50, n);
-        LLL_QP(0.99, n-l, n);
+        LLL_QP(0.999, n-l, n-l+50);
+        LLL_QP(0.999, n-50, n);
+        LLL_QP(0.999, n-l, n);
         LLL_DEEP_QP(0.9, n-l, n);
         LLL_DEEP_QP(0.97, n-l, n);
-        LLL_DEEP_QP(0.99, n-l, n);
+        LLL_DEEP_QP(0.999, n-l, n);
     }
 }
 

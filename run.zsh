@@ -2,8 +2,8 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 [[ $# -ge 3 ]] || {
-  echo "usage: ./run.zsh <Flash|Net> <version> [run options...] <basis...>"
-  echo "example: ./run.zsh Flash v0.1 --node-budget 10000000 --refresh-cycles 2 Dataset/Heavy/Basis/dim35_seed0.txt"
+  echo "usage: ./run.zsh <Flash|Net> <version> --reduction-level <Original|LLL|Light|Heavy> [run options...] <basis...>"
+  echo "example: ./run.zsh Flash v0.1 --reduction-level LLL --node-budget 5000000 --refresh-cycles 2 Dataset/LLL/Basis/dim35_seed0.txt"
   exit 2
 }
 MODEL="$1"; VERSION="$2"; shift 2

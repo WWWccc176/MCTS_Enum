@@ -307,11 +307,11 @@ py::dict sieve_reduce_serialized_api(
     int free_dim,
     int free_dim_cap) {
     Matrix block = lattice_backend::parse_matrix(matrix_text);
-    if (beta != block.get_rows() || beta < 40 ||
+    if (beta != block.get_rows() || beta < lattice_backend::kMinimumActionBeta ||
         beta > lattice_backend::kMaximumActionBeta ||
         block.get_cols() < block.get_rows()) {
         throw std::runtime_error(
-            "serialized BGJ block must be full-row-rank shaped with beta in [40, 175]");
+            "serialized BGJ block must be full-row-rank shaped within the project action range");
     }
 
     const Matrix original = block;

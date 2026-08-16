@@ -152,7 +152,7 @@ SieveBudget sieve_budget_from_environment() {
     budget.max_vectors = environment_integer(
         "LATTICE_SIEVE_MAX_VECTORS", budget.max_vectors, 128, 500'000'000);
     budget.max_csd = static_cast<int>(environment_integer(
-        "LATTICE_SIEVE_MAX_CSD", budget.max_csd, 39, 175));
+        "LATTICE_SIEVE_MAX_CSD", budget.max_csd, 1, 175));
     budget.max_bgj_calls = 1;
     budget.max_wall_seconds = environment_double(
         "LATTICE_SIEVE_MAX_SECONDS", budget.max_wall_seconds, 1.0, 86400.0);
@@ -178,9 +178,9 @@ SieveRunInfo run_local_extreme_sieve(Matrix& block, int64_t matrix_id,
     const auto started = std::chrono::steady_clock::now();
     const int dimension = block.get_rows();
     const int cols = block.get_cols();
-    if (dimension < 40 || dimension > kMaximumActionBeta || cols < dimension) {
+    if (dimension < kMinimumActionBeta || dimension > kMaximumActionBeta || cols < dimension) {
         info.stop_reason = StopReason::invalid_input;
-        info.error = "BGJ requires a full-row-rank block with 40-175 rows";
+        info.error = "BGJ requires a full-row-rank block within the project action range";
         return info;
     }
 
@@ -212,10 +212,10 @@ SieveRunInfo run_local_extreme_sieve(Matrix& block, int64_t matrix_id,
             lattice.LLL_QP(0.999);
 
             const int maximum_csd =
-                std::max(39, std::min({dimension - 1, budget.max_csd, 175}));
+                std::max(1, std::min({dimension - 1, budget.max_csd, 175}));
             int starting_csd = maximum_csd;
             if (budget.progressive) {
-                starting_csd = std::min(maximum_csd, std::max(39, std::min(60, maximum_csd)));
+                starting_csd = std::min(maximum_csd, std::max(1, std::min(60, maximum_csd)));
             }
 
             Pool_hd_t pool(&lattice);

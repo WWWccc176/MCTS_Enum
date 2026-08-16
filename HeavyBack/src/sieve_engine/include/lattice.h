@@ -59,8 +59,8 @@ class Lattice_QP {
 
         //lattice reduction
             int size_reduce();
-            int LLL_QP(double delta = 0.99);
-            int LLL_DEEP_QP(double delta = 0.99);
+            int LLL_QP(double delta = 0.9999999);
+            int LLL_DEEP_QP(double delta = 0.9999999);
             //local version
             int size_reduce(long index);
             int size_reduce(long l, long r);

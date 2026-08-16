@@ -19,6 +19,12 @@ def main() -> None:
                         help="node budget for EACH phase; -1 means unlimited")
     parser.add_argument("--refresh-cycles", type=int, default=0,
                         help="number of LLL refreshes; total phases = refresh-cycles + 1")
+    parser.add_argument(
+        "--reduction-level",
+        choices=("Original", "LLL", "Light", "Heavy"),
+        required=True,
+        help="reduction level of the input basis",
+    )
     parser.add_argument("basis", nargs="+", type=Path)
     args = parser.parse_args()
     if args.node_budget == 0 or args.node_budget < -1:
@@ -40,22 +46,23 @@ def main() -> None:
     for basis in args.basis:
         basis = basis.resolve()
         extra = {
+            "reduction_level": args.reduction_level,
             "network": asdict(network),
             "train": asdict(train),
         }
         tag, metadata = build_identity(
             MODEL, VERSION, basis, args.node_budget, args.refresh_cycles, runtime, extra
         )
-        run_id = f"{basis.stem}/{tag}"
+        run_id = f"{args.reduction_level}/{basis.stem}/{tag}"
         result_root = PROJECT_ROOT / "Result" / MODEL
-        result_dir = result_root / VERSION / basis.stem / tag
+        result_dir = result_root / VERSION / args.reduction_level / basis.stem / tag
         resource = {
             "cpu_threads": plan.cpu_threads,
             "cpu_total": plan.cpu_total,
             "gpu_ids": list(plan.gpu_ids),
         }
         print(
-            f"[RUN] model={MODEL} version={VERSION} basis={basis.name} "
+            f"[RUN] model={MODEL} version={VERSION} reduction={args.reduction_level} basis={basis.name} "
             f"parameter_id={metadata['parameter_id']} phases={args.refresh_cycles + 1}",
             flush=True,
         )

@@ -11,7 +11,7 @@ using Matrix = fplll::ZZ_mat<mpz_t>;
 inline constexpr int kInitialBkzBeta = 20;
 inline constexpr int kMinimumActionBeta = 21;
 inline constexpr int kEnumerationMaxBeta = 52;
-inline constexpr int kSieveThreshold = 53;
+inline constexpr int kSieveThreshold = kMinimumActionBeta;
 inline constexpr int kMaximumActionBeta = 175;
 inline constexpr int kBgj3MinBeta = 95;
 
