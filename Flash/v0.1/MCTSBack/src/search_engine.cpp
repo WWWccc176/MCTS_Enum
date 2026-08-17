@@ -102,10 +102,6 @@ void SearchEngine::initialize_episode() {
 
     const long double log_b1 = 0.5L * Basis::log_positive_mpz(r0_sq_);
     input_quality_ratio_ = static_cast<double>(std::exp(log_b1 - gso_.log_gh()));
-    if (input_quality_ratio_ > config_.quality_gate) {
-        throw std::runtime_error(
-            "input basis rejected by quality gate: b1/GH exceeds configured threshold");
-    }
 
     tree_.reset(basis_.dimension());
     phase_initial_basis_ = basis_.to_text();
