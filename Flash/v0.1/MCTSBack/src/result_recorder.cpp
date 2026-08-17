@@ -41,6 +41,12 @@ double best_over_gh(const PhaseSnapshot& phase, int dimension) {
     return phase.initial_b1_over_gh * std::exp(-phase.best_score / static_cast<double>(dimension));
 }
 
+double norm_over_gh(const mpz_class& squared_norm, long double log_gh) {
+    if (squared_norm <= 0) return 0.0;
+    return static_cast<double>(std::exp(
+        0.5L * Basis::log_positive_mpz(squared_norm) - log_gh));
+}
+
 }  // namespace
 
 void ResultRecorder::add_phase(PhaseSnapshot snapshot) {
@@ -62,21 +68,23 @@ void ResultRecorder::write(
     std::uint64_t total_nodes = 0;
     for (const auto& phase : phases_) total_nodes += phase.total_nodes;
 
-    std::uint32_t final_best_found_phase = 0;
-    std::uint64_t final_best_found_phase_node = 0;
-    std::uint64_t final_best_found_total_node = 0;
-    if (!phases_.empty()) {
-        const mpz_class& final_norm = phases_.back().best_squared_norm;
-        std::uint64_t nodes_before = 0;
-        for (const auto& phase : phases_) {
-            if (phase.best_squared_norm == final_norm) {
-                final_best_found_phase = phase.phase_index;
-                final_best_found_phase_node = phase.best_found_at_node_count;
-                final_best_found_total_node = nodes_before + phase.best_found_at_node_count;
-                break;
-            }
-            nodes_before += phase.total_nodes;
+    const PhaseSnapshot* global_best_phase = nullptr;
+    mpz_class global_best_sq = 0;
+    std::uint64_t global_best_found_total = 0;
+    std::uint64_t global_best_found_phase_node = 0;
+    std::uint32_t global_best_found_phase = 0;
+    std::uint64_t nodes_before = 0;
+
+    for (const auto& phase : phases_) {
+        if (!global_best_phase || phase.best_squared_norm < global_best_sq) {
+            global_best_phase = &phase;
+            global_best_sq = phase.best_squared_norm;
+            global_best_found_phase = phase.phase_index;
+            global_best_found_phase_node = phase.best_found_at_node_count;
+            global_best_found_total =
+                nodes_before + phase.best_found_at_node_count;
         }
+        nodes_before += phase.total_nodes;
     }
 
     {
@@ -89,24 +97,33 @@ void ResultRecorder::write(
             << "nn_enabled=" << (nn_enabled_ ? 1 : 0) << '\n'
             << "phase_count=" << phases_.size() << '\n'
             << "total_nodes_all_phases=" << total_nodes << '\n';
-        if (!phases_.empty()) {
+        if (!phases_.empty() && global_best_phase) {
             const auto& first = phases_.front();
-            const auto& last = phases_.back();
-            const int dimension = static_cast<int>(last.best_coefficients.size());
+            const int dimension =
+                static_cast<int>(global_best_phase->best_coefficients.size());
             const double global_score =
-                (dimension > 0 && first.initial_radius_squared > 0 && last.best_squared_norm > 0)
-                ? 0.5 * static_cast<double>(dimension) * static_cast<double>(
-                    Basis::log_positive_mpz(first.initial_radius_squared) -
-                    Basis::log_positive_mpz(last.best_squared_norm))
+                (dimension > 0 &&
+                 first.initial_radius_squared > 0 &&
+                 global_best_sq > 0)
+                ? 0.5 * static_cast<double>(dimension) *
+                    static_cast<double>(
+                        Basis::log_positive_mpz(first.initial_radius_squared) -
+                        Basis::log_positive_mpz(global_best_sq))
                 : 0.0;
+
             out << "initial_b1_over_gh=" << first.initial_b1_over_gh << '\n'
-                << "final_best_over_gh=" << best_over_gh(last, dimension) << '\n'
+                << "initial_search_radius_over_gh="
+                << norm_over_gh(first.initial_radius_squared, first.log_gh) << '\n'
+                << "final_best_over_gh="
+                << norm_over_gh(global_best_sq, first.log_gh) << '\n'
                 << "final_best_score_global=" << global_score << '\n'
-                << "final_phase_best_score=" << last.best_score << '\n'
-                << "final_best_squared_norm=" << last.best_squared_norm.get_str() << '\n'
-                << "final_best_found_phase=" << final_best_found_phase << '\n'
-                << "final_best_found_at_phase_node_count=" << final_best_found_phase_node << '\n'
-                << "final_best_found_at_total_node_count=" << final_best_found_total_node << '\n';
+                << "final_best_squared_norm=" << global_best_sq.get_str() << '\n'
+                << "final_best_found_phase=" << global_best_found_phase << '\n'
+                << "final_best_found_in_phase=" << global_best_found_phase << '\n'
+                << "final_best_found_at_phase_node_count="
+                << global_best_found_phase_node << '\n'
+                << "final_best_found_at_total_node_count="
+                << global_best_found_total << '\n';
         }
         if (has_search_config_) {
             out << "node_budget_per_phase="

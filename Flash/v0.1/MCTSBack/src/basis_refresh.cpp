@@ -82,6 +82,8 @@ BasisRefreshResult lll_refresh(
             return result;
         }
 
+        fplll::lll_reduction(reduced, lll_delta);
+
         result.changed = !equal_basis(current.matrix(), reduced);
         result.basis = Basis(std::move(reduced));
         result.completed = true;

@@ -88,10 +88,35 @@ SearchEngine SearchEngine::from_packet(
 void SearchEngine::initialize_episode() {
     gso_.recompute(basis_);
     gso_features_cache_ = gso_.normalized_features();
-    r0_sq_ = basis_.first_vector_squared_norm();
-    if (r0_sq_ <= 0) throw std::runtime_error("first basis vector is zero");
-    best_sq_ = r0_sq_;
-    best_z_ = basis_.first_vector_coefficients();
+
+    const Matrix& matrix = basis_.matrix();
+    const int dimension = basis_.dimension();
+    int shortest_basis_index = -1;
+    mpz_class shortest_basis_sq = 0;
+
+    for (int i = 0; i < dimension; ++i) {
+        mpz_class row_sq = 0;
+        for (int j = 0; j < basis_.columns(); ++j) {
+            mpz_class x;
+            mpz_set(x.get_mpz_t(), matrix[i][j].get_data());
+            row_sq += x * x;
+        }
+        if (row_sq <= 0) continue;
+        if (shortest_basis_index < 0 || row_sq < shortest_basis_sq) {
+            shortest_basis_sq = row_sq;
+            shortest_basis_index = i;
+        }
+    }
+
+    if (shortest_basis_index < 0 || shortest_basis_sq <= 0) {
+        throw std::runtime_error("basis contains no nonzero row");
+    }
+
+    r0_sq_ = shortest_basis_sq;
+    best_sq_ = shortest_basis_sq;
+    best_z_.assign(static_cast<std::size_t>(dimension), 0);
+    best_z_[static_cast<std::size_t>(shortest_basis_index)] = 1;
+
     refresh_candidate_sq_ = 0;
     refresh_candidate_z_.clear();
     refresh_candidate_found_at_node_count_ = 0;
@@ -100,11 +125,14 @@ void SearchEngine::initialize_episode() {
     best_path_snapshot_.clear();
     best_score_ = 0.0;
 
-    const long double log_b1 = 0.5L * Basis::log_positive_mpz(r0_sq_);
-    input_quality_ratio_ = static_cast<double>(std::exp(log_b1 - gso_.log_gh()));
+    const long double log_r0 =
+        0.5L * Basis::log_positive_mpz(r0_sq_);
+    input_quality_ratio_ =
+        static_cast<double>(std::exp(log_r0 - gso_.log_gh()));
 
-    tree_.reset(basis_.dimension());
+    tree_.reset(dimension);
     phase_initial_basis_ = basis_.to_text();
+
     pending_.clear();
     progress_epoch_ = 0;
     radius_epoch_ = 0;
@@ -1272,7 +1300,9 @@ void SearchEngine::apply_refresh(
 
 bool SearchEngine::refresh_basis_with_best() {
     std::lock_guard<std::mutex> lock(mutex_);
-    if (!pending_.empty()) throw std::runtime_error("basis refresh requires zero pending requests");
+    if (!pending_.empty()) {
+        throw std::runtime_error("basis refresh requires zero pending requests");
+    }
     if (refresh_candidate_z_.empty()) {
         throw std::runtime_error(
             "basis refresh requested but this phase found no non-basis terminal vector");
