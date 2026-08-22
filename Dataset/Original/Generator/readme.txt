@@ -1,5 +1,17 @@
-WARNING: can only be used to create instances of the SVP challenge (https://www.latticechallenge.org/svp-challenge/) if used with NTL 9.3 or OLDER (due to a change in the NTL pseudorandom generator)
+SVP Challenge generator.
 
-run "make generate_random"
+The official SVP Challenge instances require the pre-NTL-9.4 pseudorandom
+generator. This project therefore builds generate_random against a private
+NTL 9.3.0 installation at:
 
-Syntax: "./generate_random [--dim 80] [--seed 0]"
+    mcts_env/ntl-9.3.0
+
+Do not link this generator against the system NTL if the system version is
+9.4 or newer. NTL 9.4 changed the PRG, so the same dimension/seed would
+produce a different lattice.
+
+Build:
+    ./build.sh
+
+Run:
+    ./generate_random --dim 40 --seed 5778

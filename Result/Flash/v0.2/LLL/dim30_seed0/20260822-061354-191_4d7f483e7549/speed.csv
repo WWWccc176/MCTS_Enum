@@ -1,0 +1,4 @@
+phase,elapsed_s,work_nodes,tree_nodes,enumeration_nodes,rollout_jobs,exact_candidates,active_rollouts,rate_work_nodes_s,search_radius_over_gh,best_over_gh,radius_drops
+0,2.000306,45447,45383,64,648,2,0,22719.518472,1.0103944241,1.0103944241,1
+0,2.286227,51321,51257,64,735,2,0,22448.349614,1.0103944241,1.0103944241,1
+1,1.198903,27777,27653,124,443,1,0,23169.647113,1.0103944241,1.0103944241,0

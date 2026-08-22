@@ -1,0 +1,1 @@
+phase	depth	k	node	parent	z_k	tree_nodes_at_depth	parent_rho	rho	bound_r2	center	delta	legal_lo	legal_hi	N	Q	M
